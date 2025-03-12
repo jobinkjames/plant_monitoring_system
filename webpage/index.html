@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>WiFi Configuration</title>
+    <link href="../styles" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; font-family: Arial, sans-serif; text-align: center; color: black; }
+        #wrapper { background: #fff; margin: 70px auto; width: 40%; padding: 30px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); }
+        h1 { color: #333; } h3, footer { color: #666; font-size: 14px; }
+        table { margin: auto; width: 100%; } input { width: 90%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h1>Plant Monitoring System</h1>
+    <h3>WiFi Configuration Page</h3>
+
+    <div id="wrapper">
+        <p style="color: #f48942;">Enter WiFi details below:</p>
+        <form action="" method="POST">
+            <table>
+                <tr><td>WiFi Name:</td><td><input type="text" name="WIFI_NAME" placeholder="SSID" required pattern="^[^; ]+$"></td></tr>
+                <tr><td>Password:</td><td><input type="password" name="PASSWORD" placeholder="Password" pattern="^[^; ]+$"></td></tr>
+                <tr><td></td><td><button type="submit">Log In</button></td></tr>
+            </table>
+        </form>
+    </div>
+
+    <footer>&copy; 2025 Plant Monitoring System. All Rights Reserved. <br> Created by <strong>Your Name</strong></footer>
+
+</body>
+</html>

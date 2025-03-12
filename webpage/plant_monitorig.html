@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <META HTTP-EQUIV="Refresh" CONTENT=60>
+    <title>Plant Monitoring System</title>
+    <link rel="icon" href="css/logo.png"> 
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-database.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
+
+    <!-- ✅ Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script src="https://kit.fontawesome.com/1f8fcc82f7.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <h2 style="margin-bottom: 0px"><a href="index.html" style="text-decoration: none;color:inherit;">Plant Monitoring System</a></h2>
+    </header>
+    <div>
+        <span id="clock" class="clock"></span>
+    </div>
+
+    
+    <div class="center-image">
+        <img src="images/plant.png" alt="Centered Image">
+    </div>
+    <div class="container" style="margin-bottom: 2%;">
+        <div class="row gx-5">
+            <div class="col-6 col-md-4 outer">
+                <div class="sha">
+                    <div id="temp-animation" class="lottie-container"></div>
+                    <h2>Temperature</h2>
+                    <p id="temp" class="id"></p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 outer">
+                <div class="sha">
+                    <div id="humidity-animation" class="lottie-container"></div>
+                    <h2>Humidity</h2>
+                    <p id="humidity" class="id"></p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 outer">
+                <div class="sha">
+                    <div id="moisture-animation" class="lottie-container"></div>
+                    <h2>Moisture</h2>
+                    <p id="moisture" class="id"></p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4 outer">
+                <div class="sha">
+                    <div id="select-animation" class="lottie-container"></div>
+                    <h2>Mode Select</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="modeSelector">
+                            <option value="1">Automatic</option>
+                            <option value="2">Scheduled</option>
+                            <option value="3">Manual</option>
+                        </select>
+                        <button id="insert0">Submit</button>
+                    </div>
+                </div>
+            </div>
+            
+
+
+            <!-- Mode Content -->
+    <div class="mode-container">
+        <div id="mode1" class="mode-content active">
+            <h3>Automatic Mode</h3>
+            <p>Smart watering system that monitors soil moisture and automatically turns the motor on or off to maintain optimal hydration</p>
+    
+            <!-- ✅ Gauge Meters -->
+            <div class="gauge-container">
+                <div id="moistureGauge" class="gauge-box"></div>
+                <div id="tempGauge" class="gauge-box"></div>
+                <div id="humidityGauge" class="gauge-box"></div>
+            </div>
+    
+            <!-- ✅ History Chart -->
+            <div class="chart-container">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+    </body>
+        
+        <div id="mode2" class="mode-content">
+            <h3>Scheduled Mode</h3>
+            <p>Set specific ON and OFF times to control watering cycles automatically, ensuring consistent plant care</p>
+        
+            <!-- Flexbox container -->
+            <div class="time-container">
+                <!-- ON Time 1 -->
+                <div class="time-box">
+                    <h2>ON Time</h2>
+                    <div class="time-section">
+                        <div>
+                            <h4>Current</h4>
+                            <p id="current-time1">--:--</p> <!-- Display current time -->
+                        </div>
+                        <div>
+                            <h4>Desired</h4>
+                            <input type="time" id="time1">
+                            <button id="insert1">Submit</button>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- ON Time 2 -->
+                <div class="time-box">
+                    <h2>ON Time</h2>
+                    <div class="time-section">
+                        <div>
+                            <h4>Current</h4>
+                            <p id="current-time2">--:--</p>
+                        </div>
+                        <div>
+                            <h4>Desired</h4>
+                            <input type="time" id="time2">
+                            <button id="insert2">Submit</button>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- OFF Time 1 -->
+                <div class="time-box">
+                    <h2>OFF Time</h2>
+                    <div class="time-section">
+                        <div>
+                            <h4>Current</h4>
+                            <p id="current-time3">--:--</p>
+                        </div>
+                        <div>
+                            <h4>Desired</h4>
+                            <input type="time" id="time3">
+                            <button id="insert3">Submit</button>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- OFF Time 2 -->
+                <div class="time-box">
+                    <h2>OFF Time</h2>
+                    <div class="time-section">
+                        <div>
+                            <h4>Current</h4>
+                            <p id="current-time4">--:--</p>
+                        </div>
+                        <div>
+                            <h4>Desired</h4>
+                            <input type="time" id="time4">
+                            <button id="insert4">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+       <div id="mode3" class="mode-content">
+    <h3>Manual Mode</h3>
+    <p>Take full control and manually turn the motor and humidifier on or off.</p>
+    
+    <div class="manual-controls">
+        <button id="motorButton" class="btn btn-success" onclick="toggleMotor()">Motor ON</button>
+        <button id="humidifierButton" class="btn btn-success" onclick="toggleHumidifier()">Humidifier ON</button>
+    </div>
+</div>
+
+    </div>
+                        
+            
+            <!-- <div class="col-md-4 outer">
+                <div class="sha">
+                    <h2 class="animate__animated animate__tada" style="text-align: center;">Current Set Time</h2>
+                    <p id="tt" class="id"></p>
+                </div>
+            </div>
+            <div class="col outer">
+                <div class="sha">
+                    <h2 class="animate__animated animate__tada" style="text-align: center;">Set Desired Time</h2>
+                    <div style="margin-top: 5%;">
+                        <input type="time" id="time">
+                        <button id="insert">Submit</button>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+    <footer>
+        <p>2022&copy; xyz</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
+    
+    <script>
+        function currentTime() {
+            let date = new Date();
+            let hh = date.getHours();
+            let mm = date.getMinutes();
+            let ss = date.getSeconds();
+            let session = "AM";
+            let yy = date.getFullYear();
+            const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            let mon = month[date.getMonth()];
+            let dd = date.getDate();
+            let da = dd + " " + mon + " " + yy + " ";
+
+            if (hh == 0) hh = 12;
+            if (hh > 12) {
+                hh = hh - 12;
+                session = "PM";
+            }
+
+            hh = (hh < 10) ? "0" + hh : hh;
+            mm = (mm < 10) ? "0" + mm : mm;
+            ss = (ss < 10) ? "0" + ss : ss;
+
+            let time = da + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + hh + ":" + mm + ":" + ss + " " + session;
+            document.getElementById("clock").innerText = time;
+            setTimeout(currentTime, 1000);
+        }
+        currentTime();
+    </script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // ✅ Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "smart-es-8a1fc.firebaseapp.com",
+        databaseURL: "https://smart-es-8a1fc-default-rtdb.firebaseio.com",
+        projectId: "smart-es-8a1fc",
+        storageBucket: "smart-es-8a1fc.appspot.com",
+        messagingSenderId: "465348551850",
+        appId: "1:465348551850:web:b456c9b4205381f425dcd3"
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+  
+        let moistureGauge = new JustGage({
+                id: "moistureGauge",
+                value: 0,
+                min: 0,
+                max: 100,
+                title: "Soil Moisture",
+                label: "%",
+                levelColors: ["#ff0000", "#f9c802", "#a9d70b"] // Red → Yellow → Green
+            });
+
+            let tempGauge = new JustGage({
+                id: "tempGauge",
+                value: 0,
+                min: 0,
+                max: 50,
+                title: "Temperature",
+                label: "°C",
+                levelColors: ["#00a2ff", "#f9c802", "#ff0000"] // Blue → Yellow → Red
+            });
+
+            let humidityGauge = new JustGage({
+                id: "humidityGauge",
+                value: 0,
+                min: 0,
+                max: 100,
+                title: "Humidity",
+                label: "%",
+                levelColors: ["#ff0000", "#f9c802", "#00a2ff"] // Red → Yellow → Blue
+            });
+
+            let ctx = document.getElementById("historyChart").getContext("2d");
+            let historyChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: "Moisture (%)", borderColor: "green", backgroundColor: "rgba(0,128,0,0.2)", data: [], tension: 0.4 },
+                        { label: "Temperature (°C)", borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", data: [], tension: 0.4 },
+                        { label: "Humidity (%)", borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", data: [], tension: 0.4 }
+                    ]
+                },
+                options: {
+                     responsive: true,
+                     maintainAspectRatio: false,  /* ✅ Allows resizing */
+                     scales: {
+                         x: { title: { display: true, text: "Time" } },
+                         y: { min: 0, max: 100, title: { display: true, text: "Value" } }
+                             }
+                 }
+
+            });
+
+        // ✅ Function to update Firebase data
+        function updateFirebase(path, key, value) {
+            if (value === "") {
+                alert(`Select a value for ${key}!`);
+            } else {
+                update(ref(db, path), { [key]: value })
+                    .then(() => alert(`${key} updated successfully.`))
+                    .catch(error => alert(`Failed to update ${key}: ` + error));
+            }
+        }
+
+        // ✅ Event Listeners for Time Inputs
+        document.getElementById("insert1").addEventListener("click", () => updateFirebase("devices/scheduledTimes", "onTime1", document.getElementById("time1").value));
+        document.getElementById("insert2").addEventListener("click", () => updateFirebase("devices/scheduledTimes", "onTime2", document.getElementById("time2").value));
+        document.getElementById("insert3").addEventListener("click", () => updateFirebase("devices/scheduledTimes", "offTime1", document.getElementById("time3").value));
+        document.getElementById("insert4").addEventListener("click", () => updateFirebase("devices/scheduledTimes", "offTime2", document.getElementById("time4").value));
+
+        // ✅ Event Listener for Mode Selection
+        document.getElementById("insert0").addEventListener("click", () => {
+            let mode = document.getElementById("modeSelector").value;
+            updateFirebase("devices", "mode", mode);
+        });
+
+        // ✅ Motor & Humidifier Controls
+        const motorButton = document.getElementById("motorButton");
+        const humidifierButton = document.getElementById("humidifierButton");
+
+        if (motorButton) {
+            motorButton.addEventListener("click", toggleMotor);
+        } else {
+            console.error("Motor button not found!");
+        }
+
+        if (humidifierButton) {
+            humidifierButton.addEventListener("click", toggleHumidifier);
+        } else {
+            console.error("Humidifier button not found!");
+        }
+
+             // ✅ Toggle Motor
+        function toggleMotor() {
+            let newMotorState = motorButton.innerText.includes("ON") ? "OFF" : "ON";
+            update(ref(db, "devices/manualControls"), { motor: newMotorState })
+                .then(() => {
+                    motorButton.innerText = `Motor ${newMotorState}`;
+                    motorButton.classList.toggle("btn-success", newMotorState === "ON");
+                    motorButton.classList.toggle("btn-danger", newMotorState === "OFF");
+                })
+                .catch(error => alert("Failed to update motor state: " + error));
+        }
+
+        // ✅ Toggle Humidifier
+        function toggleHumidifier() {
+            let newHumidifierState = humidifierButton.innerText.includes("ON") ? "OFF" : "ON";
+            update(ref(db, "devices/manualControls"), { humidifier: newHumidifierState })
+                .then(() => {
+                    humidifierButton.innerText = `Humidifier ${newHumidifierState}`;
+                    humidifierButton.classList.toggle("btn-success", newHumidifierState === "ON");
+                    humidifierButton.classList.toggle("btn-danger", newHumidifierState === "OFF");
+                })
+                .catch(error => alert("Failed to update humidifier state: " + error));
+        }
+
+        // ✅ Fetch Data from Firebase & Update UI
+        const firebaseRef = ref(db, "devices");
+        onValue(firebaseRef, (snapshot) => {
+    if (snapshot.exists()) {
+        let data = snapshot.val();
+
+        // ✅ Update Mode Selection
+        let modeSelector = document.getElementById("modeSelector");
+        if (modeSelector && data.mode) {
+            modeSelector.value = data.mode;
+        }
+
+        // ✅ Hide all mode content
+        document.querySelectorAll('.mode-content').forEach(el => el.style.display = 'none');
+
+        // ✅ Show only the selected mode content
+        let selectedModeDiv = document.getElementById(`mode${data.mode}`);
+        if (selectedModeDiv) {
+            selectedModeDiv.style.display = 'block';
+        }
+
+
+        if (data.moistureValue !== undefined) moistureGauge.refresh(data.moistureValue);
+                    if (data.Temperature !== undefined) tempGauge.refresh(data.Temperature);
+                    if (data.Humidity !== undefined) humidityGauge.refresh(data.Humidity);
+
+                    // ✅ Update Graph Data
+                    let now = new Date().toLocaleTimeString();
+                    if (historyChart.data.labels.length > 10) {
+                        historyChart.data.labels.shift();
+                        historyChart.data.datasets[0].data.shift();
+                        historyChart.data.datasets[1].data.shift();
+                        historyChart.data.datasets[2].data.shift();
+                    }
+                    historyChart.data.labels.push(now);
+                    historyChart.data.datasets[0].data.push(data.moistureValue || 0);
+                    historyChart.data.datasets[1].data.push(data.Temperature || 0);
+                    historyChart.data.datasets[2].data.push(data.Humidity || 0);
+                    historyChart.update();
+
+        // ✅ Update Sensor Readings
+        if (document.getElementById("temp")) {
+            document.getElementById("temp").innerText = `${data.Temperature || "--"} °C`;
+        }
+        if (document.getElementById("humidity")) {
+            document.getElementById("humidity").innerText = `${data.Humidity || "--"} %`;
+        }
+        if (document.getElementById("moisture")) {
+            document.getElementById("moisture").innerText = `${data.moistureValue || "--"} %`;
+        }
+        if (document.getElementById("tt")) {
+            document.getElementById("tt").innerText = data.time || "--:--";
+        }
+
+        // ✅ Update Scheduled Times
+        if (data.scheduledTimes) {
+            document.getElementById("current-time1").innerText = data.scheduledTimes.onTime1 || "--:--";
+            document.getElementById("current-time2").innerText = data.scheduledTimes.onTime2 || "--:--";
+            document.getElementById("current-time3").innerText = data.scheduledTimes.offTime1 || "--:--";
+            document.getElementById("current-time4").innerText = data.scheduledTimes.offTime2 || "--:--";
+        }
+
+        // ✅ Get Motor & Humidifier Buttons
+        let motorButton = document.getElementById("motorButton");
+        let humidifierButton = document.getElementById("humidifierButton");
+
+        // ✅ Update Motor & Humidifier Status
+        if (data.manualControls) {
+            if (motorButton) {
+                motorButton.innerText = `Motor ${data.manualControls.motor || "OFF"}`;
+                motorButton.classList.toggle("btn-success", data.manualControls.motor === "ON");
+                motorButton.classList.toggle("btn-danger", data.manualControls.motor === "OFF");
+            }
+            if (humidifierButton) {
+                humidifierButton.innerText = `Humidifier ${data.manualControls.humidifier || "OFF"}`;
+                humidifierButton.classList.toggle("btn-success", data.manualControls.humidifier === "ON");
+                humidifierButton.classList.toggle("btn-danger", data.manualControls.humidifier === "OFF");
+            }
+        }
+    }
+});
+
+    });
+</script>
+
+
+<script>
+    lottie.loadAnimation({
+        container: document.getElementById("temp-animation"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/b4f63fb6-4184-499b-bf3a-86b860c62a00/481ATa0gl5.json"
+        // path: "https://lottie.host/d721f971-c21f-4261-94ef-92d2d1b3e5fd/6EuGUQOWUt.json"
+    });
+
+    lottie.loadAnimation({
+        container: document.getElementById("humidity-animation"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/9289249c-6df4-4080-8269-3651bf0b0110/dw8X7RN9vr.json"
+    });
+
+    lottie.loadAnimation({
+        container: document.getElementById("moisture-animation"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/6ff5ee78-a749-45aa-9223-add77eb0f3f2/JAquYAibMp.json"
+    });
+    lottie.loadAnimation({
+        container: document.getElementById("select-animation"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/551fa15e-0e30-47f9-9633-328fc331bcf3/89FEGCMdoK.json"
+    });
+</script>
+
+
+<script>
+// Variables to track motor and humidifier state
+let motorState = false; // false = OFF, true = ON
+let humidifierState = false; // false = OFF, true = ON
+
+// Function to toggle Motor ON/OFF
+function toggleMotor() {
+    motorState = !motorState;
+    let motorButton = document.getElementById("motorButton");
+    motorButton.innerText = motorState ? "Motor OFF" : "Motor ON";
+    motorButton.className = motorState ? "btn btn-danger" : "btn btn-success";
+}
+
+// Function to toggle Humidifier ON/OFF
+function toggleHumidifier() {
+    humidifierState = !humidifierState;
+    let humidifierButton = document.getElementById("humidifierButton");
+    humidifierButton.innerText = humidifierState ? "Humidifier OFF" : "Humidifier ON";
+    humidifierButton.className = humidifierState ? "btn btn-danger" : "btn btn-primary";
+}
+
+
+</script>
+
+</body>
+
+</html>
