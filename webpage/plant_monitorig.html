@@ -88,12 +88,32 @@
             <h3>Automatic Mode</h3>
             <p>Smart watering system that monitors soil moisture and automatically turns the motor on or off to maintain optimal hydration</p>
     
-            <!-- ✅ Gauge Meters -->
-            <div class="gauge-container">
-                <div id="moistureGauge" class="gauge-box"></div>
-                <div id="tempGauge" class="gauge-box"></div>
-                <div id="humidityGauge" class="gauge-box"></div>
-            </div>
+           <!-- ✅ Gauge Meters -->
+<!-- ✅ Gauge Meters -->
+<!-- ✅ Gauge Meters -->
+<div class="gauge-container">
+    <div class="gauge-wrapper">
+        <div id="moistureGauge" class="gauge-box"></div>
+        <span class="gauge-label">Moisture</span>
+        <span id="moistureStatus" class="gauge-status">--</span>
+        <span id="moistureAction" class="gauge-action">--</span> <!-- New Line for Action -->
+    </div>
+    <div class="gauge-wrapper">
+        <div id="tempGauge" class="gauge-box"></div>
+        <span class="gauge-label">Temperature</span>
+        <span id="tempStatus" class="gauge-status">--</span>
+        <span id="tempAction" class="gauge-action">--</span> <!-- New Line for Action -->
+    </div>
+    <div class="gauge-wrapper">
+        <div id="humidityGauge" class="gauge-box"></div>
+        <span class="gauge-label">Humidity</span>
+        <span id="humidityStatus" class="gauge-status">--</span>
+        <span id="humidityAction" class="gauge-action">--</span> <!-- New Line for Action -->
+    </div>
+</div>
+
+
+
     
             <!-- ✅ History Chart -->
             <div class="chart-container">
@@ -298,26 +318,62 @@
             });
 
             let ctx = document.getElementById("historyChart").getContext("2d");
-            let historyChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: [],
-                    datasets: [
-                        { label: "Moisture (%)", borderColor: "green", backgroundColor: "rgba(0,128,0,0.2)", data: [], tension: 0.4 },
-                        { label: "Temperature (°C)", borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", data: [], tension: 0.4 },
-                        { label: "Humidity (%)", borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", data: [], tension: 0.4 }
-                    ]
-                },
-                options: {
-                     responsive: true,
-                     maintainAspectRatio: false,  /* ✅ Allows resizing */
-                     scales: {
-                         x: { title: { display: true, text: "Time" } },
-                         y: { min: 0, max: 100, title: { display: true, text: "Value" } }
-                             }
-                 }
+    let historyChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: [],  // Stores timestamps
+            datasets: [
+                { label: "Moisture (%)", borderColor: "green", backgroundColor: "rgba(0,128,0,0.2)", data: [], tension: 0.4 },
+                { label: "Temperature (°C)", borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", data: [], tension: 0.4 },
+                { label: "Humidity (%)", borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", data: [], tension: 0.4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: "Time" } },
+                y: { min: 0, max: 100, title: { display: true, text: "Value" } }
+            }
+        }
+    });
 
+    // ✅ Fetch **All Historical Data** from Firebase
+    const historyRef = ref(db, "devices/sensorHistory");
+    onValue(historyRef, (snapshot) => {
+        if (snapshot.exists()) {
+            let data = snapshot.val();
+
+            // ✅ Clear existing chart data
+            historyChart.data.labels = [];
+            historyChart.data.datasets[0].data = [];
+            historyChart.data.datasets[1].data = [];
+            historyChart.data.datasets[2].data = [];
+
+            // ✅ Loop through stored historical data
+            Object.keys(data).forEach((timestamp) => {
+                let entry = data[timestamp];
+                historyChart.data.labels.push(new Date(timestamp).toLocaleTimeString());
+                historyChart.data.datasets[0].data.push(entry.moisture);
+                historyChart.data.datasets[1].data.push(entry.temperature);
+                historyChart.data.datasets[2].data.push(entry.humidity);
             });
+
+            historyChart.update();
+        }
+    });
+
+    // ✅ Store New Data Every 5 Minutes
+    setInterval(() => {
+        const timestamp = new Date().toISOString();
+        const newData = {
+            moisture: Math.floor(Math.random() * 100),  // 🔥 Replace with real sensor data
+            temperature: Math.floor(Math.random() * 50),
+            humidity: Math.floor(Math.random() * 100)
+        };
+
+        push(ref(db, "devices/sensorHistory"), newData);
+    }, 300000); // 5 minutes
 
         // ✅ Function to update Firebase data
         function updateFirebase(path, key, value) {
@@ -382,6 +438,91 @@
                 .catch(error => alert("Failed to update humidifier state: " + error));
         }
 
+
+
+// ✅ Function to update status based on gauge value
+function updateGaugeStatus(gaugeId, value) {
+    let statusElement = document.getElementById(gaugeId + "Status");
+    let actionElement = document.getElementById(gaugeId + "Action");
+
+    if (!statusElement || !actionElement) return; // Ensure elements exist
+
+    // if (!statusElement) return; // Ensure the element exists
+
+   let gauge;
+    if (gaugeId === "moisture") gauge = moistureGauge;
+    else if (gaugeId === "temp") gauge = tempGauge;
+    else if (gaugeId === "humidity") gauge = humidityGauge;
+
+    let newColors = [];
+
+    if (gaugeId === "moisture") {
+        if (value < 20) {
+            statusElement.innerText = "Moisture is Low";
+            statusElement.style.color = "blue";
+            actionElement.innerText = "Turning on Pump...";
+            actionElement.style.color = "blue";
+            newColors = ["#0000FF"]; // Blue
+        } else if (value > 80) {
+            statusElement.innerText = "Moisture is High";
+            statusElement.style.color = "red";
+            actionElement.innerText = "Turning off Pump...";
+            actionElement.style.color = "red";
+            newColors = ["#FF0000"]; // Red
+        } else {
+            statusElement.innerText = "Moisture is Normal";
+            statusElement.style.color = "green";
+            actionElement.innerText = "Pump Off";
+            actionElement.style.color = "green";
+            newColors = ["#00FF00"]; // Green
+        }
+    } else if (gaugeId === "temp") {
+        if (value < 15) {
+            statusElement.innerText = "Temperature is Low";
+            statusElement.style.color = "blue";
+            actionElement.innerText = "";
+            newColors = ["#0000FF"]; // Blue
+        } else if (value > 30) {
+            statusElement.innerText = "Temperature is High";
+            statusElement.style.color = "red";
+            actionElement.innerText = "";
+            newColors = ["#FF0000"]; // Red
+        } else {
+            statusElement.innerText = "Temperature is Normal";
+            statusElement.style.color = "green";
+            actionElement.innerText = "";
+            newColors = ["#00FF00"]; // Green
+        }
+    } else if (gaugeId === "humidity") {
+        if (value < 30) {
+            statusElement.innerText = "Humidity is Low";
+            statusElement.style.color = "blue";
+            actionElement.innerText = "Turning on Humidifier...";
+            actionElement.style.color = "blue";
+            newColors = ["#0000FF"]; // Blue
+        } else if (value > 70) {
+            statusElement.innerText = "Humidity is High";
+            statusElement.style.color = "red";
+            actionElement.innerText = "Turning off Humidifier...";
+            actionElement.style.color = "red";
+            newColors = ["#FF0000"]; // Red
+        } else {
+            statusElement.innerText = "Humidity is Normal";
+            statusElement.style.color = "green";
+            actionElement.innerText = "Humidifier Off";
+            actionElement.style.color = "green";
+            newColors = ["#00FF00"]; // Green
+        }
+    }
+
+    // ✅ Change gauge color dynamically
+    gauge.refresh(value);
+    gauge.config.levelColors = newColors;
+    gauge.refresh(value);
+}
+
+
+
         // ✅ Fetch Data from Firebase & Update UI
         const firebaseRef = ref(db, "devices");
         onValue(firebaseRef, (snapshot) => {
@@ -404,9 +545,21 @@
         }
 
 
-        if (data.moistureValue !== undefined) moistureGauge.refresh(data.moistureValue);
-                    if (data.Temperature !== undefined) tempGauge.refresh(data.Temperature);
-                    if (data.Humidity !== undefined) humidityGauge.refresh(data.Humidity);
+        if (data.moistureValue !== undefined) {
+            moistureGauge.refresh(data.moistureValue);
+            updateGaugeStatus("moisture", data.moistureValue); // ✅ Update status
+        }
+        if (data.Temperature !== undefined) {
+            tempGauge.refresh(data.Temperature);
+            updateGaugeStatus("temp", data.Temperature); // ✅ Update status
+        }
+        if (data.Humidity !== undefined) {
+            humidityGauge.refresh(data.Humidity);
+            updateGaugeStatus("humidity", data.Humidity); // ✅ Update status
+        }
+
+
+                    
 
                     // ✅ Update Graph Data
                     let now = new Date().toLocaleTimeString();
@@ -465,6 +618,10 @@
 });
 
     });
+
+
+
+    
 </script>
 
 
@@ -500,6 +657,10 @@
         autoplay: true,
         path: "https://lottie.host/551fa15e-0e30-47f9-9633-328fc331bcf3/89FEGCMdoK.json"
     });
+
+
+
+    
 </script>
 
 

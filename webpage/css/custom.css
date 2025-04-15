@@ -199,10 +199,30 @@ p {
     gap: 20px; /* ✅ Adds spacing between gauges */
 }
 
+.gauge-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .gauge-box {
-    width: 180px;  /* ✅ Reduce Gauge Size */
-    height: 150px;
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+}
+
+.gauge-label {
+    font-size: 12px;
+    color: #555;
+    margin-top: 5px;
     text-align: center;
+}
+
+.gauge-status {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ff5722; /* Default warning color */
+    margin-top: 5px;
 }
 
 /* ✅ Chart Styling */
@@ -211,5 +231,22 @@ p {
     max-width: 600px; /* ✅ Reduce Chart Width */
     height: 250px; /* ✅ Reduce Chart Height */
     margin: 30px auto;
+}
+
+.gauge-status {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    color: #555; /* Default color */
+    display: block; /* Ensures it appears on a new line */
+}
+
+.gauge-action {
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
+    color: #777;
+    display: block; /* Ensures it appears on a new line */
+    margin-top: 3px;
 }
 
